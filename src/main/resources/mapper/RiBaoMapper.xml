@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ribao.dao.RiBaoMapper">
+  <resultMap id="BaseResultMap" type="cn.ribao.po.RiBao">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="work_date" jdbcType="TIMESTAMP" property="workDate" />
+    <result column="task_type" jdbcType="VARCHAR" property="taskType" />
+    <result column="task_no" jdbcType="VARCHAR" property="taskNo" />
+    <result column="work_content" jdbcType="VARCHAR" property="workContent" />
+    <result column="work_hour" jdbcType="DECIMAL" property="workHour" />
+    <result column="real_hour" jdbcType="DECIMAL" property="realHour" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+<!--   删除所有日报记录 -->
+  <delete id = "deleteAll">
+      delete from ri_bao
+  </delete>
+<!--   一次性插入集合中所有日报记录 -->
+    <insert id="insertAll">
+      insert into ri_bao (id, name, work_date, 
+          task_type, task_no, work_content, 
+          work_hour, real_hour, project_name, 
+          remark)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=INTEGER}, #{item.name,jdbcType=VARCHAR}, #{item.workDate,jdbcType=TIMESTAMP}, 
+              #{item.taskType,jdbcType=VARCHAR}, #{item.taskNo,jdbcType=VARCHAR}, #{item.workContent,jdbcType=VARCHAR}, 
+              #{item.workHour,jdbcType=DECIMAL}, #{item.realHour,jdbcType=DECIMAL}, #{item.projectName,jdbcType=VARCHAR}, 
+              #{item.remark,jdbcType=VARCHAR})
+        </foreach>
+    </insert>  
+    
+<!--   插入单个日报记录 -->
+  <insert id="insert" parameterType="cn.ribao.po.RiBao">
+    insert into ri_bao (id, name, work_date, 
+      task_type, task_no, work_content, 
+      work_hour, real_hour, project_name, 
+      remark)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{workDate,jdbcType=TIMESTAMP}, 
+      #{taskType,jdbcType=VARCHAR}, #{taskNo,jdbcType=VARCHAR}, #{workContent,jdbcType=VARCHAR}, 
+      #{workHour,jdbcType=DECIMAL}, #{realHour,jdbcType=DECIMAL}, #{projectName,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+<!--   插入单个日报记录，仅选择非字字段进行插入 -->
+  <insert id="insertSelective" parameterType="cn.ribao.po.RiBao">
+    insert into ri_bao
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="workDate != null">
+        work_date,
+      </if>
+      <if test="taskType != null">
+        task_type,
+      </if>
+      <if test="taskNo != null">
+        task_no,
+      </if>
+      <if test="workContent != null">
+        work_content,
+      </if>
+      <if test="workHour != null">
+        work_hour,
+      </if>
+      <if test="realHour != null">
+        real_hour,
+      </if>
+      <if test="projectName != null">
+        project_name,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="workDate != null">
+        #{workDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taskType != null">
+        #{taskType,jdbcType=VARCHAR},
+      </if>
+      <if test="taskNo != null">
+        #{taskNo,jdbcType=VARCHAR},
+      </if>
+      <if test="workContent != null">
+        #{workContent,jdbcType=VARCHAR},
+      </if>
+      <if test="workHour != null">
+        #{workHour,jdbcType=DECIMAL},
+      </if>
+      <if test="realHour != null">
+        #{realHour,jdbcType=DECIMAL},
+      </if>
+      <if test="projectName != null">
+        #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>
