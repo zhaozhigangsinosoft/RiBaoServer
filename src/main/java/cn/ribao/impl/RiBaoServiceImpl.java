@@ -100,7 +100,7 @@ public class RiBaoServiceImpl implements RiBaoService {
                     @SuppressWarnings("resource")
                     XSSFWorkbook xssfWorkbook = new XSSFWorkbook(is);
                     //读取第一个sheet页
-                    XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
+                    XSSFSheet xssfSheet = xssfWorkbook.getSheet("工作明细");
                     //从第三行开始遍历每一个单元格，将值存储到对象中
                     for (int i = 2; i <= xssfSheet.getLastRowNum(); i++) {
                         XSSFRow xssfRow = xssfSheet.getRow(i);
