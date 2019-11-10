@@ -1,5 +1,6 @@
 package cn.ribao.impl;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -121,14 +123,33 @@ public class TaskServiceImpl implements TaskService {
         }
         
         Collection<RiBao> result = new ArrayList<RiBao>();
+        Collection<String> ribaoNameList = new ArrayList<>();
         //查询出所有人的最晚提交日报的日期
         Collection<RiBao> list = riBaoMapper.selectCheckResult(nowDate);
         for (Iterator<RiBao> iterator = list.iterator(); iterator.hasNext();) {
             RiBao riBao = (RiBao) iterator.next();
+            ribaoNameList.add(riBao.getName());
             if(riBao.getName() != null && checkNameMap.containsKey(riBao.getName())) {
                 result.add(riBao);
             }
         }
+        
+        //对未找到日报文件的人员也要检查，并将日期设置为2019-01-01
+        Set<String> set = checkNameMap.keySet();
+        for (Iterator<String> iterator = set.iterator(); iterator.hasNext();) {
+            String name = (String) iterator.next();
+            if(!ribaoNameList.contains(name)) {
+                RiBao riBao = new RiBao();
+                riBao.setName(name);
+                try {
+                    riBao.setWorkDate(new SimpleDateFormat("yyyy-MM-dd").parse("2019-01-01"));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                result.add(riBao);
+            }
+        }
+        
         return result;
     }
     
