@@ -17,6 +17,12 @@
   <delete id = "deleteAll">
       delete from ri_bao
   </delete>
+  
+    <select id="selectCheckResult" resultMap="BaseResultMap" parameterType="java.util.Date">
+        select name , max(work_date) work_date from ri_bao a
+        where work_date &lt;= #{param1}
+        group by name
+    </select>
 <!--   一次性插入集合中所有日报记录 -->
     <insert id="insertAll">
       insert into ri_bao (id, name, work_date, 

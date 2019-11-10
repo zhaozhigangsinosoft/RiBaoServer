@@ -1,5 +1,6 @@
 package cn.ribao.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import cn.ribao.po.RiBao;
@@ -29,4 +30,11 @@ public interface RiBaoMapper {
      * @param riBaoList
      */
     void insertAll(List<RiBao> riBaoList);
+    
+    /**
+     * 校验填报填写结果
+     * @param lastWordDay 
+     * @return
+     */
+    List<RiBao> selectCheckResult(Date lastWordDay);
 }
