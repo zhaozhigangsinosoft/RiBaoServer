@@ -204,15 +204,17 @@ public class TaskServiceImpl implements TaskService {
             stringBuffer.append("未按时提交日报人员如下：\n");
             for (Iterator<RiBao> iterator = list.iterator(); iterator.hasNext();) {
                 RiBao riBao = (RiBao) iterator.next();
-                stringBuffer.append("  姓名："+riBao.getName());
-                if(riBao.getName().length()<3) {
-                    stringBuffer.append("    ");
-                }
-                stringBuffer.append("  最后一次提交日报日期："+new SimpleDateFormat("yyyy-MM-dd").format(riBao.getWorkDate()));
-                stringBuffer.append("  已延期：");
                 long diff = checkDate.getTime() - riBao.getWorkDate().getTime();//这样得到的差值是毫秒级别  
                 long days = diff / (1000 * 60 * 60 * 24); 
-                stringBuffer.append(days+"天\n");
+                if(days>0) {
+                    stringBuffer.append("  姓名："+riBao.getName());
+                    if(riBao.getName().length()<3) {
+                        stringBuffer.append("    ");
+                    }
+                    stringBuffer.append("  最后一次提交日报日期："+new SimpleDateFormat("yyyy-MM-dd").format(riBao.getWorkDate()));
+                    stringBuffer.append("  已延期：");
+                    stringBuffer.append(days+"天\n");
+                }
             }
 
         }
