@@ -199,6 +199,7 @@ public class TaskServiceImpl implements TaskService {
      */
     private void sendEmail(Collection<RiBao> list,Date checkDate) {
         StringBuffer stringBuffer = new StringBuffer();
+        boolean fault = false;
         if(list!=null&&!list.isEmpty()) {
             stringBuffer.append("日报检查日期："+new SimpleDateFormat("yyyy-MM-dd").format(checkDate)+"\n");
             stringBuffer.append("未按时提交日报人员如下：\n");
@@ -207,6 +208,7 @@ public class TaskServiceImpl implements TaskService {
                 long diff = checkDate.getTime() - riBao.getWorkDate().getTime();//这样得到的差值是毫秒级别  
                 long days = diff / (1000 * 60 * 60 * 24); 
                 if(days>0) {
+                    fault = true;
                     stringBuffer.append("  姓名："+riBao.getName());
                     if(riBao.getName().length()<3) {
                         stringBuffer.append("    ");
@@ -216,7 +218,9 @@ public class TaskServiceImpl implements TaskService {
                     stringBuffer.append(days+"天\n");
                 }
             }
-
+            if(fault) {
+                stringBuffer.append("  所有人均已按时提交日报。");
+            }
         }
         logger.debug(stringBuffer.toString());
         
