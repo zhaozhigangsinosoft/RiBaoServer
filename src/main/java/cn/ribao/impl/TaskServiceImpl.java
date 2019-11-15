@@ -218,7 +218,7 @@ public class TaskServiceImpl implements TaskService {
                     stringBuffer.append(days+"天\n");
                 }
             }
-            if(fault) {
+            if(!fault) {
                 stringBuffer.append("  所有人均已按时提交日报。");
             }
         }
