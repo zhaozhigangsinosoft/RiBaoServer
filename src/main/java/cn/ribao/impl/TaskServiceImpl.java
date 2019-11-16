@@ -89,6 +89,7 @@ public class TaskServiceImpl implements TaskService {
     @Scheduled(cron = "0 0 1 * * ?") 
     public void checkRibao() {
         //更新日报
+//        if(true) {
         if(this.updateSvn()) {
             if("1".equals(checkswitch)) {
                 //将日报读取到数据为库中
@@ -100,13 +101,49 @@ public class TaskServiceImpl implements TaskService {
                 calendar.clear(Calendar.MINUTE);
                 calendar.clear(Calendar.SECOND);
                 calendar.add(Calendar.DATE, -1);
-                Date checkDate = this.getWordDay(calendar.getTime());
-                //生成日报检查结果
-                Collection<RiBao> list =  this.chekcDetail(checkDate);
-                //发送日报检查邮件
-                this.sendEmail(list,checkDate);
+                Date checkDate = calendar.getTime();
+                if(this.isWorkDay(checkDate)) {
+                    //生成日报检查结果
+                    Collection<RiBao> list =  this.chekcDetail(checkDate);
+                    //发送日报检查邮件
+                    this.sendEmail(list,checkDate);
+                }
             }
         }
+    }
+    
+    private boolean isWorkDay(Date checkDate) {
+        boolean result = true;
+        //解析配置文件中的特殊工作日配置为map,value为1为工作日，0为非工作日
+        HashMap<String, String> wordDayMap = new HashMap<>();
+        String workday[] = this.specialworkday.split(";");
+        for (int i = 0; i < workday.length; i++) {
+            String str[] = workday[i].split(":");
+            wordDayMap.put(str[0], str[1]);
+        }
+        //定义日历，将校验日期设置进去，以方便后面操作
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(checkDate);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.clear(Calendar.MINUTE);
+        calendar.clear(Calendar.SECOND);
+        int week = calendar.get(Calendar.DAY_OF_WEEK);
+        String specialResult = wordDayMap.get(new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()));
+        //先判断校验日期是否为特殊工作日,如果有,直接返回结果.
+        if(specialResult!=null) {
+            if("0".equals(specialResult)) {
+                result = false;
+            }else {
+                result = true;
+            }
+        }
+        //如果不是特殊工作日，则按星期判断
+        if(week == 1 || week == 7) {
+            result = false;
+        }else {
+            result = true;
+        }
+        return result;
     }
     
     /**
@@ -158,7 +195,7 @@ public class TaskServiceImpl implements TaskService {
      * @param nowDate
      * @return
      */
-    private Date getWordDay(Date nowDate) {
+    private Date getWorkDay(Date nowDate) {
         //解析配置文件中的特殊工作日配置为map,value为1为工作日，0为非工作日
         HashMap<String, String> wordDayMap = new HashMap<>();
         String workday[] = this.specialworkday.split(";");
@@ -198,31 +235,34 @@ public class TaskServiceImpl implements TaskService {
      * @param checkDate
      */
     private void sendEmail(Collection<RiBao> list,Date checkDate) {
-        StringBuffer stringBuffer = new StringBuffer();
-        boolean fault = false;
+        StringBuffer stringBufferHead = new StringBuffer();
+        StringBuffer stringBufferBody = new StringBuffer();
+        boolean errorFlag = false;
         if(list!=null&&!list.isEmpty()) {
-            stringBuffer.append("日报检查日期："+new SimpleDateFormat("yyyy-MM-dd").format(checkDate)+"\n");
-            stringBuffer.append("未按时提交日报人员如下：\n");
+            stringBufferHead.append("日报检查日期："+new SimpleDateFormat("yyyy-MM-dd").format(checkDate)+"\n");
             for (Iterator<RiBao> iterator = list.iterator(); iterator.hasNext();) {
                 RiBao riBao = (RiBao) iterator.next();
                 long diff = checkDate.getTime() - riBao.getWorkDate().getTime();//这样得到的差值是毫秒级别  
                 long days = diff / (1000 * 60 * 60 * 24); 
                 if(days>0) {
-                    fault = true;
-                    stringBuffer.append("  姓名："+riBao.getName());
+                    errorFlag = true;
+                    stringBufferBody.append("  姓名："+riBao.getName());
                     if(riBao.getName().length()<3) {
-                        stringBuffer.append("    ");
+                        stringBufferBody.append("    ");
                     }
-                    stringBuffer.append("  最后一次提交日报日期："+new SimpleDateFormat("yyyy-MM-dd").format(riBao.getWorkDate()));
-                    stringBuffer.append("  已延期：");
-                    stringBuffer.append(days+"天\n");
+                    stringBufferBody.append("  最后一次提交日报日期："+new SimpleDateFormat("yyyy-MM-dd").format(riBao.getWorkDate()));
+                    stringBufferBody.append("  已延期：");
+                    stringBufferBody.append(days+"天\n");
                 }
             }
-            if(!fault) {
-                stringBuffer.append("  所有人均已按时提交日报。");
+            if(!errorFlag) {
+                stringBufferHead.append("所有人均已按时提交日报。");
+            }else {
+                stringBufferHead.append("未按时提交日报人员如下：\n");
             }
+            stringBufferHead.append(stringBufferBody.toString());
         }
-        logger.debug(stringBuffer.toString());
+        logger.debug(stringBufferBody.toString());
         
         try {
             if(this.receiveemail!=null && this.receiveemail.length()>0) {
@@ -251,7 +291,7 @@ public class TaskServiceImpl implements TaskService {
                 // 设置邮件标题
                 message.setSubject(new SimpleDateFormat("yyyy-MM-dd").format(checkDate)+"日报检查结果通知");
                 // 设置邮件内容
-                message.setText(stringBuffer.toString());
+                message.setText(stringBufferHead.toString());
                 // 得到邮差对象
                 Transport transport = session.getTransport();
                 // 连接自己的邮箱账户
