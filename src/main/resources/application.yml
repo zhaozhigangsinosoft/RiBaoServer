@@ -5,8 +5,8 @@ params:
      checkname: 刘春旭;刘晓宇;卢玥;周志伟;安广;常若男;张金梁;张震;潘晨;王思铭;王艳艳;纪津;胡文达;董博宇;闫明
      specialworkday: 2019-09-29:1;2019-10-01:0;2019-10-02:0;2019-10-03:0;2019-10-04:0;2019-10-05:0;2019-10-06:0;2019-10-07:0;2019-10-12:1
   svn:
-     username: reins_server
-     password: reins_server
+     username: zhaozhigang
+     password: zhaozhigang
   email:
      sendemail: zhaozhigang@sinosoft.com.cn
      password: 784533Gigi
