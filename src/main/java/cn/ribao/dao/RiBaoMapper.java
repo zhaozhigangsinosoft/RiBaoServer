@@ -32,9 +32,21 @@ public interface RiBaoMapper {
     void insertAll(List<RiBao> riBaoList);
     
     /**
-     * 校验填报填写结果
+     * 校验日报填写结果
      * @param lastWordDay 
      * @return
      */
     List<RiBao> selectCheckResult(Date lastWordDay);
+    /**
+     * 校验日报不满8小时
+     * @param lastWordDay 
+     * @return
+     */
+    List<RiBao> selectCheck8(Date lastWordDay);
+    /**
+     * 校验提前填写日报的
+     * @param lastWordDay 
+     * @return
+     */
+    List<RiBao> selectOverTime(Date lastWordDay);
 }

@@ -18,6 +18,26 @@
       delete from ri_bao
   </delete>
   
+    <select id="selectOverTime" resultMap="BaseResultMap" parameterType="java.util.Date">
+		SELECT
+		id,name,work_date,task_type,task_no,work_content,work_hour,real_hour,project_name,remark
+		FROM
+		    ri_bao 
+		where work_date &gt; #{param1}
+		order by work_date DESC,name ASC 
+    </select>
+    <select id="selectCheck8" resultMap="BaseResultMap" parameterType="java.util.Date">
+		SELECT
+		    name,
+		    work_date,
+		    sum(work_hour) AS work_hour
+		FROM
+		    ri_bao 
+		where work_date = #{param1}
+		GROUP BY
+		    work_date,name
+		HAVING sum(work_hour) &lt; 8 
+    </select>
     <select id="selectCheckResult" resultMap="BaseResultMap" parameterType="java.util.Date">
         select name , max(work_date) work_date from ri_bao a
         where work_date &lt;= #{param1}
