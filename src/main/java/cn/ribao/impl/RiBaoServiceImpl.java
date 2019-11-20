@@ -153,7 +153,7 @@ public class RiBaoServiceImpl implements RiBaoService {
                             riBao.setRemark(remark.toString());
                         }
                         //将本条日报数据存放到集合中
-                        if(riBao.getWorkHour().intValue() != 0) {
+                        if(riBao.getWorkHour().doubleValue() != 0) {
                             riBaoList.add(riBao);
                         }
                     }
