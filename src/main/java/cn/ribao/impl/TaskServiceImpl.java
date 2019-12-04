@@ -361,6 +361,11 @@ public class TaskServiceImpl implements TaskService {
      */
     private boolean updateSvn() {
         try {
+            try {
+                SVNKit.doCleanup(this.username, this.password, this.filePath);
+            } catch (Exception e) {
+                logger.error(e.getMessage(),e);
+            }
             int result = SVNKit.doUpdate(this.username, this.password, this.filePath);
             if(result==1)
                 return true;
