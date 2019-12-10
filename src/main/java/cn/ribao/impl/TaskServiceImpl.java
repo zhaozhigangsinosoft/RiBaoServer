@@ -98,12 +98,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Scheduled(cron = "0 0 1 * * ?") 
     public void checkRibao() {
-        //更新日报
+        //检出日报
 //        if(true) {
         if(this.checkoutSvn()) {
             if("1".equals(checkswitch)) {
                 //将日报读取到数据为库中
-                FileUtils.delDir(new File(this.checkOutPath));
                 riBaoService.readExcel(this.checkOutPath);
                 FileUtils.delDir(new File(this.checkOutPath));
                 Calendar calendar = Calendar.getInstance();
@@ -373,6 +372,7 @@ public class TaskServiceImpl implements TaskService {
      */
     private boolean checkoutSvn() {
         boolean result ;
+        FileUtils.delDir(new File(this.checkOutPath));
         try {
             result = SVNKit.checkOut(this.username, this.password, this.svnUrl, this.checkOutPath);
         } catch (Exception e) {
