@@ -1,6 +1,7 @@
 package cn.ribao.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +17,14 @@ import cn.ribao.service.TaskService;
 @RequestMapping("/ribao")
 public class RiBaoController {
     
+    //从配置文件中读取项目日报更新存储路径
+    @Value("${params.ribao.updatePath}")
+    private String updatePath;
+    
+    //从配置文件中读取项目日报检出存储路径
+    @Value("${params.ribao.checkOutPath}")
+    private String checkOutPath;
+    
     @Autowired
     RiBaoService riBaoService;
     
@@ -28,7 +37,7 @@ public class RiBaoController {
      */
     @RequestMapping(value = "/read")
     public String readExcel() {
-        return riBaoService.readExcel();
+        return riBaoService.readExcel(this.updatePath);
     }
     @RequestMapping(value = "/check")
     public void check() {

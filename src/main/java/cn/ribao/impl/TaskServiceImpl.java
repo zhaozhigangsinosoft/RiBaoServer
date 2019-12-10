@@ -1,5 +1,6 @@
 package cn.ribao.impl;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import cn.ribao.dao.RiBaoMapper;
 import cn.ribao.po.RiBao;
 import cn.ribao.service.RiBaoService;
 import cn.ribao.service.TaskService;
+import cn.util.FileUtils;
 import cn.util.SVNKit;
 
 @Component
@@ -41,8 +43,16 @@ public class TaskServiceImpl implements TaskService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     //从配置文件中读取项目日报存储路径
-    @Value("${params.ribao.filepath}")
-    private String filePath;
+    @Value("${params.ribao.updatePath}")
+    private String updatePath;
+    
+    //从配置文件中读取项目日报存储路径
+    @Value("${params.ribao.checkOutPath}")
+    private String checkOutPath;
+    
+    //从配置文件中读取项目日报SVN存储位置
+    @Value("${params.ribao.svnUrl}")
+    private String svnUrl;
     
     //从配置文件中读取项目日报自动校验开关，1为校验
     @Value("${params.ribao.checkswitch}")
@@ -90,10 +100,12 @@ public class TaskServiceImpl implements TaskService {
     public void checkRibao() {
         //更新日报
 //        if(true) {
-        if(this.updateSvn()) {
+        if(this.checkoutSvn()) {
             if("1".equals(checkswitch)) {
                 //将日报读取到数据为库中
-                riBaoService.readExcel();
+                FileUtils.delDir(new File(this.checkOutPath));
+                riBaoService.readExcel(this.checkOutPath);
+                FileUtils.delDir(new File(this.checkOutPath));
                 Calendar calendar = Calendar.getInstance();
                 //处理检查日期为当前日期前一天最近工作日，去掉时分秒
                 calendar.setTime(new Date());
@@ -356,25 +368,18 @@ public class TaskServiceImpl implements TaskService {
     }
     
     /**
-     * 更新日报SVN目录，并返回更新结果，true为成功，false为失败
+     * 检出日报，并返回结果，true为成功，false为失败
      * @return
      */
-    private boolean updateSvn() {
+    private boolean checkoutSvn() {
+        boolean result ;
         try {
-            try {
-                SVNKit.doCleanup(this.username, this.password, this.filePath);
-            } catch (Exception e) {
-                logger.error(e.getMessage(),e);
-            }
-            int result = SVNKit.doUpdate(this.username, this.password, this.filePath);
-            if(result==1)
-                return true;
-            else 
-                return false;
+            result = SVNKit.checkOut(this.username, this.password, this.svnUrl, this.checkOutPath);
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            logger.error(e.getMessage(),e);
+            result = false;
         }
+        return result;
     }
 
 }

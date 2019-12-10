@@ -40,10 +40,6 @@ public class RiBaoServiceImpl implements RiBaoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    //从配置文件中读取项目日报存储路径
-    @Value("${params.ribao.filepath}")
-    private String filePath;
-
     @Autowired
     private RiBaoMapper riBaoMapper;
 
@@ -52,12 +48,12 @@ public class RiBaoServiceImpl implements RiBaoService {
      * @return success/failed
      */
     @Override
-    public String readExcel() {
+    public String readExcel(String path) {
         List<RiBao> riBaoList = null;
         String result = "success";
         try {
             //读取工作日报文件，转换为日报对象的集合
-            riBaoList = this.readFile();
+            riBaoList = this.readFile(path);
             if (riBaoList != null && !riBaoList.isEmpty()) {
                 //删除数据库中的所有数据
                 riBaoMapper.deleteAll();
@@ -77,12 +73,12 @@ public class RiBaoServiceImpl implements RiBaoService {
      * @return List<RiBao>
      * @throws Exception
      */
-    private List<RiBao> readFile() throws Exception {
+    private List<RiBao> readFile(String path) throws Exception {
         List<RiBao> riBaoList = new ArrayList<RiBao>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
             //使用非递归方式获取日报存储目录下的所有文件
-            ArrayList<File> fileList = FileUtils.getFiles(this.filePath,false);
+            ArrayList<File> fileList = FileUtils.getFiles(path,false);
             //遍历所有文件
             for (Iterator<File> iterator = fileList.iterator(); 
                     iterator.hasNext();) {

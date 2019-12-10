@@ -10,6 +10,6 @@ public interface RiBaoService {
      * 项目日报导入数据库方法
      * @return success/failed
      */
-    public String readExcel();
+    public String readExcel(String path);
 
 }

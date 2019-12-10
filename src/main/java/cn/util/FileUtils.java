@@ -48,4 +48,33 @@ public class FileUtils {
             file.createNewFile();
         }
     }
+    
+    /**
+     * 删除目录
+     * @param dir
+     * @return
+     */
+    public static boolean delDir(File dir){
+        try {
+            if (dir.isDirectory()){
+                String[] children = dir.list();
+                for (int i=0; i<children.length;i++) {
+                    boolean success = delDir(new File(dir, children[i]));
+                    if (!success)
+                        return false;
+                }
+ 
+            }
+            if (dir.delete()){
+                return true;
+            }else {
+                
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
