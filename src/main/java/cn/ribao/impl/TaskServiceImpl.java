@@ -221,6 +221,7 @@ public class TaskServiceImpl implements TaskService {
             }else {
                 result = true;
             }
+            return result;
         }
         //如果不是特殊工作日，则按星期判断
         if(week == 1 || week == 7) {
