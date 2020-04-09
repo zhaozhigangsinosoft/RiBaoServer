@@ -78,7 +78,7 @@ public class RiBaoServiceImpl implements RiBaoService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
             //使用非递归方式获取日报存储目录下的所有文件
-            ArrayList<File> fileList = FileUtils.getFiles(path,false);
+            ArrayList<File> fileList = FileUtils.getFiles(path,true);
             //遍历所有文件
             for (Iterator<File> iterator = fileList.iterator(); 
                     iterator.hasNext();) {
