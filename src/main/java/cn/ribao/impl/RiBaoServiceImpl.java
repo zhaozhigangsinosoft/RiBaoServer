@@ -30,6 +30,8 @@ import cn.ribao.service.RiBaoService;
 import cn.util.FileUtils;
 import cn.util.RegTest;
 
+import javax.annotation.Resource;
+
 /**
  * 项目日报导入服务接口实现类
  * @author ZhaoZhigang
@@ -40,7 +42,7 @@ public class RiBaoServiceImpl implements RiBaoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
+    @Resource
     private RiBaoMapper riBaoMapper;
 
     /**
@@ -80,16 +82,16 @@ public class RiBaoServiceImpl implements RiBaoService {
             //使用非递归方式获取日报存储目录下的所有文件
             ArrayList<File> fileList = FileUtils.getFiles(path,true);
             //遍历所有文件
-            for (Iterator<File> iterator = fileList.iterator(); 
+            for (Iterator<File> iterator = fileList.iterator();
                     iterator.hasNext();) {
                 File file = iterator.next();
                 //如果文件不是xlsx格式的项目日报文件，则扫描下一个文件
                 if(!RegTest.match(file.getName(), "^2019项目日报表-.*\\.xlsx$")) {
                     continue;
                 }
-                
+
                 logger.info("正在处理文件：" + file.getName());
-                
+
                 InputStream is = new FileInputStream(file);
                 try {
                     ZipSecureFile.setMinInflateRatio(-1.0d);

@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
@@ -39,64 +40,64 @@ import cn.util.SVNKit;
 @Component
 @Service
 public class TaskServiceImpl implements TaskService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     //从配置文件中读取项目日报存储路径
     @Value("${params.ribao.updatePath}")
     private String updatePath;
-    
+
     //从配置文件中读取项目日报存储路径
     @Value("${params.ribao.checkOutPath}")
     private String checkOutPath;
-    
+
     //从配置文件中读取项目日报SVN存储位置
     @Value("${params.ribao.svnUrl}")
     private String svnUrl;
-    
+
     //从配置文件中读取项目日报自动校验开关，1为校验
     @Value("${params.ribao.checkswitch}")
     private String checkswitch;
-    
+
     //从配置文件中读取项目日报SVN用户密码
     @Value("${params.svn.password}")
     private String password;
-    
+
     //从配置文件中读取项目日报SVN用户用户名
     @Value("${params.svn.username}")
     private String username;
-    
+
     //从配置文件中读取项目日报检查邮件发送地址
     @Value("${params.email.sendemail}")
     private String sendemail;
-    
+
     //从配置文件中读取项目日报检查邮件发送邮箱密码
     @Value("${params.email.password}")
     private String epassword;
-    
+
     //从配置文件中读取项目日报检查邮件接收邮箱地址，多个地址用英文分号分隔
     @Value("${params.email.receiveemail}")
     private String receiveemail;
-    
+
     //从配置文件中读取项目日报检查人员，多个人员用英文分号分隔
     @Value("${params.ribao.checkname}")
     private String checkname;
-    
+
     //从配置文件中读取特殊工作日配置
     @Value("${params.ribao.specialworkday}")
     private String specialworkday;
-    
+
     @Autowired
     RiBaoService riBaoService;
-    @Autowired
+    @Resource
     RiBaoMapper riBaoMapper;
-    
-    
+
+
     /**
      *日报检查入口方法，定时任务为每天凌晨1点执行
      */
     @Override
-    @Scheduled(cron = "0 0 1 * * ?") 
+    @Scheduled(cron = "0 0 1 * * ?")
     public void checkRibao() {
         //检出日报
 //        if(true) {
@@ -121,19 +122,40 @@ public class TaskServiceImpl implements TaskService {
                     Collection<RiBao> list1 =  riBaoMapper.selectCheck8(checkDate);
                     //生成提前填写日报的结果集
                     Collection<RiBao> list2 =  riBaoMapper.selectOverTime(checkDate);
+                    //查询前一天的所有日报
+                    Collection<RiBao> list3 =  riBaoMapper.selectTaskLastDay(checkDate);
                     //组织邮件正文
                     String eMailContent = this.genEMailContent(list,list1,list2,checkDate);
+                    //组织所有人日报
+                    String allTaskContent = this.genAllTaskContent(list3);
                     //发送日报检查邮件
-                    this.sendEmail(eMailContent,checkDate);
+                    this.sendEmail(eMailContent+allTaskContent,checkDate);
                 }
             }
         }
     }
-    
+
+    private String genAllTaskContent(Collection<RiBao> list){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("\n\n\n工作明细:\n");
+        for (RiBao riBao:list){
+            if(this.checkname.indexOf(riBao.getName())>-1){
+                stringBuffer.append("  姓名："+riBao.getName());
+                if(riBao.getName().length()<3) {
+                    stringBuffer.append("    ");
+                }
+                stringBuffer.append("  工时："+riBao.getWorkHour());
+                stringBuffer.append("  工作内容："+riBao.getProjectName()+"-"+riBao.getTaskType()+"-"+riBao.getWorkContent());
+                stringBuffer.append("\n");
+            }
+        }
+        return stringBuffer.toString();
+    }
+
     /**
      * 组织邮件内容
      * @param list
-     * @param list1 
+     * @param list1
      * @param list2
      * @param checkDate
      * @return
@@ -146,8 +168,8 @@ public class TaskServiceImpl implements TaskService {
             stringBufferHead.append("日报检查日期："+new SimpleDateFormat("yyyy-MM-dd").format(checkDate)+"\n");
             for (Iterator<RiBao> iterator = list.iterator(); iterator.hasNext();) {
                 RiBao riBao = (RiBao) iterator.next();
-                long diff = checkDate.getTime() - riBao.getWorkDate().getTime();//这样得到的差值是毫秒级别  
-                long days = diff / (1000 * 60 * 60 * 24); 
+                long diff = checkDate.getTime() - riBao.getWorkDate().getTime();//这样得到的差值是毫秒级别
+                long days = diff / (1000 * 60 * 60 * 24);
                 if(days>0) {
                     errorFlag = true;
                     stringBufferBody.append("  姓名："+riBao.getName());
@@ -177,7 +199,7 @@ public class TaskServiceImpl implements TaskService {
                 stringBufferHead.append("  累计工时："+riBao.getWorkHour()+"小时\n");
             }
         }
-        
+
         if(list2!=null&&!list2.isEmpty()) {
             stringBufferHead.append("\n\n提前填写日报的人员如下：\n");
             for (Iterator<RiBao> iterator = list2.iterator(); iterator.hasNext();) {
@@ -191,7 +213,7 @@ public class TaskServiceImpl implements TaskService {
                 stringBufferHead.append("  工时："+riBao.getWorkHour()+"小时\n");
             }
         }
-        
+
         logger.debug(stringBufferHead.toString());
         return stringBufferHead.toString();
     }
@@ -231,7 +253,7 @@ public class TaskServiceImpl implements TaskService {
         }
         return result;
     }
-    
+
     /**
      * 按参数日期进行未提交日报校验
      * @param nowDate
@@ -244,7 +266,7 @@ public class TaskServiceImpl implements TaskService {
         for (int i = 0; i < names.length; i++) {
             checkNameMap.put(names[i],"");
         }
-        
+
         Collection<RiBao> result = new ArrayList<RiBao>();
         Collection<String> ribaoNameList = new ArrayList<>();
         //查询出所有人的最晚提交日报的日期
@@ -256,7 +278,7 @@ public class TaskServiceImpl implements TaskService {
                 result.add(riBao);
             }
         }
-        
+
         //对未找到日报文件的人员也要检查，并将日期设置为2019-01-01
         Set<String> set = checkNameMap.keySet();
         for (Iterator<String> iterator = set.iterator(); iterator.hasNext();) {
@@ -272,10 +294,10 @@ public class TaskServiceImpl implements TaskService {
                 result.add(riBao);
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * 获取截止入参时间最后一个工作日的日期
      * @param nowDate
@@ -315,7 +337,7 @@ public class TaskServiceImpl implements TaskService {
             }
         }
     }
-    
+
     /**
      * 发送邮件
      * @param eMailContent
@@ -364,9 +386,9 @@ public class TaskServiceImpl implements TaskService {
             e.printStackTrace();
         } catch (MessagingException e) {
             e.printStackTrace();
-        }        
+        }
     }
-    
+
     /**
      * 检出日报，并返回结果，true为成功，false为失败
      * @return

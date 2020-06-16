@@ -30,23 +30,31 @@ public interface RiBaoMapper {
      * @param riBaoList
      */
     void insertAll(List<RiBao> riBaoList);
-    
+
     /**
      * 校验日报填写结果
-     * @param lastWordDay 
+     * @param lastWorkDay
      * @return
      */
-    List<RiBao> selectCheckResult(Date lastWordDay);
+    List<RiBao> selectCheckResult(Date lastWorkDay);
     /**
      * 校验日报不满8小时
-     * @param lastWordDay 
+     * @param lastWorkDay
      * @return
      */
-    List<RiBao> selectCheck8(Date lastWordDay);
+    List<RiBao> selectCheck8(Date lastWorkDay);
+
     /**
      * 校验提前填写日报的
-     * @param lastWordDay 
+     * @param lastWorkDay
      * @return
      */
-    List<RiBao> selectOverTime(Date lastWordDay);
+    List<RiBao> selectOverTime(Date lastWorkDay);
+
+    /**
+     * 查询前一天的所有日报
+     * @param lastWorkDay
+     * @return
+     */
+    List<RiBao> selectTaskLastDay(Date lastWorkDay);
 }

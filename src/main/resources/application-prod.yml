@@ -4,11 +4,11 @@ params:
      checkOutPath: F:\日报检查目录\ribao
      svnUrl: http://192.168.18.23:1980/svn/reins_svn/Management(管理库)/SPTO(项目跟踪)/项目日报/2019
      checkswitch: 1
-     checkname: 刘春旭;刘晓宇;卢玥;周志伟;安广;常若男;张振环;张震;潘晨;王思铭;王艳艳;纪津;胡文达;董博宇;闫明
+     checkname: 刘春旭;刘晓宇;卢玥;周志伟;安广;常若男;张振环;张震;潘晨;王思铭;胡文达;董博宇;闫明
      specialworkday: 2020-01-01:0;2020-01-19:1;2020-01-24:0;2020-01-27:0;2020-01-28:0;2020-01-29:0;2020-01-30:0;2020-02-01:1;2020-04-06:0;2020-04-26:1;2020-05-01:0;2020-05-04:0;2020-05-05:0;2020-05-09:1;2020-06-25:0;2020-06-26:0;2020-06-28:1;2020-09-27:1;2020-10-01:0;2020-10-02:0;2020-10-05:0;2020-10-06:0;2020-10-07:0;2020-10-08:0;2020-10-10:1
   svn:
      username: reins_server
-     password: reins_server
+     password: 87fpT3v~fuQ]iTPQ
   email:
      sendemail: zhaozhigang@sinosoft.com.cn
      password: 784533Gigi
@@ -19,7 +19,7 @@ server:
 
 spring:
     profiles:
-        active: prod 
+        active: prod
     datasource:
         name: test
         url: jdbc:mysql://127.0.0.1:3306/reinsdb?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=true
@@ -58,7 +58,7 @@ logging:
     ins:
       platform: INFO
     com:
-      github: INFO  
+      github: INFO
 
 #pagehelper分页插件
 pagehelper:
