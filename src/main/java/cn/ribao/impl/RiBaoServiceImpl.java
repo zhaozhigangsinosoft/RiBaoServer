@@ -60,7 +60,20 @@ public class RiBaoServiceImpl implements RiBaoService {
                 //删除数据库中的所有数据
                 riBaoMapper.deleteAll();
                 //全量插入最新读取的数据
-                riBaoMapper.insertAll(riBaoList);
+                int pageSize = 1000;//分页插入数据
+                if(riBaoList.size()>pageSize){
+                    int length = riBaoList.size();
+                    for(int i = 0; i < length/pageSize; i++){
+                        int startIndex = pageSize * i;
+                        int endIndex = pageSize*(i+1)-1;
+                        if(endIndex > length -1){
+                            endIndex = length -1;
+                        }
+                        riBaoMapper.insertAll(riBaoList.subList(startIndex,endIndex));
+                    }
+                }else{
+                    riBaoMapper.insertAll(riBaoList);
+                }
             }
         } catch (Exception e) {
             //如果发生异常，则返回失败
